@@ -25,5 +25,11 @@
     <ClInclude Include="PointCloudTransformer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_err_check.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="PointCloudTransformer.cu" />
   </ItemGroup>
 </Project>

@@ -1,25 +1,21 @@
-﻿Build started 4/27/2017 1:02:32 PM.
+﻿Build started 4/27/2017 2:17:47 PM.
      1>Project "D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\PointCloudProcessor\PointCloudProcessor.vcxproj" on node 2 (Build target(s)).
      1>InitializeBuildStatus:
-         Touching "x64\Debug\PointClo.61039DB1.tlog\unsuccessfulbuild".
+         Creating "x64\Debug\PointClo.61039DB1.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
        AddCudaCompileDeps:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /D_DEBUG /D_CONSOLE /D_UNICODE /DUNICODE /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include" /I. /FIcuda_runtime.h /c D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\PointCloudProcessor\PointCloudTransformer.cu 
        AddCudaCompilePropsDeps:
        Skipping target "AddCudaCompilePropsDeps" because all output files are up-to-date with respect to the input files.
      1>Project "D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\PointCloudProcessor\PointCloudProcessor.vcxproj" (1) is building "D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\PointCloudProcessor\PointCloudProcessor.vcxproj" (1:2) on node 2 (CudaBuildCore target(s)).
      1>CudaBuildCore:
-         Compiling CUDA source file PointCloudTransformer.cu...
-         cmd.exe /C "C:\Users\monst\AppData\Local\Temp\tmpeee61323fe5a436087daabedf6d145a8.cmd"
-         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2015 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -D_DEBUG -D_CONSOLE -D_UNICODE -DUNICODE -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd " -o x64\Debug\PointCloudTransformer.cu.obj "D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\PointCloudProcessor\PointCloudTransformer.cu"
-         
-         D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\PointCloudProcessor>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2015 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -D_DEBUG -D_CONSOLE -D_UNICODE -DUNICODE -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd " -o x64\Debug\PointCloudTransformer.cu.obj "D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\PointCloudProcessor\PointCloudTransformer.cu" 
-     1>CUDACOMPILE : nvcc warning : The 'compute_20', 'sm_20', and 'sm_21' architectures are deprecated, and may be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
-         PointCloudTransformer.cu
+       Skipping target "CudaBuildCore" because all output files are up-to-date with respect to the input files.
      1>Done Building Project "D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\PointCloudProcessor\PointCloudProcessor.vcxproj" (CudaBuildCore target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include" /ZI /nologo /W3 /WX- /Od /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt PointCloudTransformer.cpp main.cpp
          PointCloudTransformer.cpp
-     1>d:\users\monst\desktop\pointcloud-perspectiveimage-misalignment\pointcloudprocessor\pointcloudprocessor\pointcloudtransformer.cpp(71): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+     1>d:\users\monst\desktop\pointcloud-perspectiveimage-misalignment\pointcloudprocessor\pointcloudprocessor\pointcloudtransformer.cpp(40): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+     1>d:\users\monst\desktop\pointcloud-perspectiveimage-misalignment\pointcloudprocessor\pointcloudprocessor\pointcloudtransformer.cpp(41): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+     1>d:\users\monst\desktop\pointcloud-perspectiveimage-misalignment\pointcloudprocessor\pointcloudprocessor\pointcloudtransformer.cpp(97): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
          Generating Code...
          Compiling...
          main.cpp
@@ -37,4 +33,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:06.51
+Time Elapsed 00:00:04.09

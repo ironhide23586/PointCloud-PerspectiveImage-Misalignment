@@ -17,6 +17,8 @@
 #define EQUATORIAL_RADIUS 6378137.0f // 'a'
 #define POLAR_RADIUS 6356752.3142f // 'b'
 
+#define POSITION_DIM 3
+
 using namespace std;
 
 void LLA2ECEF_GPU(float *lla_data, int num_samples, int sample_size);
@@ -28,7 +30,9 @@ public:
   std::ifstream pointcloud_fstream;
   std::string read_line;
   std::vector<std::vector<float>> pointcloud_buffer;
-
+  float *positions_buffer_ptr;
+  float *intensities_buffer_ptr;
+  
   cudaDeviceProp cudaProp;
 
   int global_row_idx;

@@ -21,7 +21,8 @@
 
 using namespace std;
 
-void LLA2ECEF_GPU(float *lla_data, int num_samples, int sample_size);
+void LLA2ECEF_GPU(float *h_lla_data, float *d_ecef_data, float eq_radius,
+                  float ecc, int num_samples, int sample_size);
 
 class PointCloudTransformer {
 public:
@@ -29,26 +30,26 @@ public:
   const char *filename;
   std::ifstream pointcloud_fstream;
   std::string read_line;
-  std::vector<std::vector<float>> pointcloud_buffer;
-  float *positions_buffer_ptr;
+  //std::vector<std::vector<float>> pointcloud_buffer;
+  float *h_positions_buffer_ptr, *d_positions_buffer_ptr;
   float *intensities_buffer_ptr;
   
   cudaDeviceProp cudaProp;
 
   int global_row_idx;
   int local_row_idx;
-  int row_buffer_size;
+  int buffer_size;
   bool end_reached;
 
   float ellipsoidal_flattening; // 'f'
-  float eccentricity;
+  float eccentricity; // 'e'
 
   int read_rows;
 
   PointCloudTransformer(const char *filename_arg, int buff_size = 5);
   void PopulateReadBuffer();
   
-  void ConvertLLA2ECEF_GPU(std::vector<std::vector<float>> &lla_points);
+  void ConvertLLA2ECEF_GPU();
 
   std::vector<float> static split(const std::string &s,
                                   char delim);

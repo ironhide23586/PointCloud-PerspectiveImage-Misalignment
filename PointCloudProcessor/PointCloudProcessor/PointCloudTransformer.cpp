@@ -7,27 +7,26 @@ PointCloudTransformer::PointCloudTransformer(const char *filename_arg,
   global_row_idx = 0;
   local_row_idx = 0;
   read_rows = 0;
-  row_buffer_size = buff_size;
+  buffer_size = buff_size;
   end_reached = false;
   ellipsoidal_flattening = (EQUATORIAL_RADIUS - POLAR_RADIUS)
     / EQUATORIAL_RADIUS;
   eccentricity = std::sqrtf(ellipsoidal_flattening
                             * (2 - ellipsoidal_flattening));
   CudaSafeCall(cudaGetDeviceProperties(&cudaProp, 0));
-  CudaSafeCall(cudaMallocHost((void **)&positions_buffer_ptr,
+  CudaSafeCall(cudaMallocHost((void **)&h_positions_buffer_ptr,
                               sizeof(float) * POSITION_DIM * buff_size));
+  CudaSafeCall(cudaMalloc((void **)&d_positions_buffer_ptr,
+                          sizeof(float) * POSITION_DIM * buff_size));
   CudaSafeCall(cudaMallocHost((void **)&intensities_buffer_ptr,
                               sizeof(float) * buff_size));
 }
 
 void PointCloudTransformer::PopulateReadBuffer() {
-  pointcloud_buffer.clear();
-  pointcloud_buffer.resize(row_buffer_size);
   int i;
-  for (i = 0; i < row_buffer_size; i++) {
+  for (i = 0; i < buffer_size; i++) {
     if (!ReadNextRow()) {
-      row_buffer_size = i;
-      pointcloud_buffer.resize(row_buffer_size);
+      buffer_size = i;
       end_reached = true;
       break;
     }
@@ -35,16 +34,13 @@ void PointCloudTransformer::PopulateReadBuffer() {
   read_rows = i;
 }
 
-void PointCloudTransformer::ConvertLLA2ECEF_GPU(std::vector<std::vector<float>>
-                                                &lla_points) {
-  int num_points = lla_points.size();
-  int pcloud_size = lla_points[0].size();
-  int i = 0;
-  while (true) {
-    float k = *(&lla_points[0][0] + i);
-    std::cout << k << std::endl;
-    i++;
-  }
+void PointCloudTransformer::ConvertLLA2ECEF_GPU() {
+  LLA2ECEF_GPU(h_positions_buffer_ptr, d_positions_buffer_ptr, 
+               EQUATORIAL_RADIUS, eccentricity, buffer_size, POSITION_DIM);
+  CudaCheckError();
+  CudaSafeCall(cudaMemcpy(h_positions_buffer_ptr, d_positions_buffer_ptr,
+                          sizeof(float) * POSITION_DIM * buffer_size,
+                          cudaMemcpyDeviceToHost));
 }
 
 std::vector<float> PointCloudTransformer::split(const std::string &s,
@@ -58,24 +54,22 @@ bool PointCloudTransformer::ReadNextRow() {
   std::vector<float> point_vect;
   if (pointcloud_fstream.is_open()) {
     if (std::getline(pointcloud_fstream, read_line)) {
-      if (local_row_idx >= row_buffer_size) {
+      if (local_row_idx >= buffer_size) {
         local_row_idx = 0;
       }
-      //pointcloud_buffer[local_row_idx] = split(read_line, ' ');
       point_vect = split(read_line, ' ');
       for (int i = 0; i < point_vect.size(); i++) {
         if (i < POSITION_DIM) {
-          positions_buffer_ptr[local_row_idx * POSITION_DIM + i]
+          h_positions_buffer_ptr[local_row_idx * POSITION_DIM + i]
             = point_vect[i];
-          std::cout << positions_buffer_ptr[local_row_idx * POSITION_DIM + i] << ", ";
+          //std::cout << h_positions_buffer_ptr[local_row_idx * POSITION_DIM + i] << ", ";
         }
         else {
           intensities_buffer_ptr[local_row_idx] = point_vect[i];
-          std::cout << "---->" << intensities_buffer_ptr[local_row_idx];
+          //std::cout << "---->" << intensities_buffer_ptr[local_row_idx];
         }
       }
-      std::cout << endl;
-
+      //std::cout << endl;
       local_row_idx++;
       global_row_idx++;
       return true;

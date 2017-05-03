@@ -71,7 +71,8 @@ void PointCloudTransformer::LoadCameraDetails(float cam_phi, float cam_lambda, f
 
 void PointCloudTransformer::ConvertLLA2ENU_GPU() {
   LLA2NEmU_GPU(h_positions_buffer_ptr, d_positions_buffer_ptr, 
-               EQUATORIAL_RADIUS, eccentricity, buffer_size, POSITION_DIM, reference_cam);
+               EQUATORIAL_RADIUS, eccentricity, buffer_size, 
+               POSITION_DIM, reference_cam);
   CudaCheckError();
   //CudaSafeCall(cudaMemcpy(h_positions_buffer_ptr, d_positions_buffer_ptr,
   //                        sizeof(float) * POSITION_DIM * buffer_size,
@@ -80,24 +81,10 @@ void PointCloudTransformer::ConvertLLA2ENU_GPU() {
 
 void PointCloudTransformer::ConvertENU2CamCoord_GPU() {
   float a = 1.0f, b = 0.0f;
-  CublasSafeCall(cublasSgemm_v2(cublas_handle, CUBLAS_OP_N,
-                                CUBLAS_OP_N, 3, buffer_size, 3, &a, d_Rq, 3,
-                                d_positions_buffer_ptr, buffer_size, &b,
-                                d_positions_buffer_ptr, buffer_size)); //FIX THIS
-  //NEmU2Cam_GPU(d_positions_buffer_ptr, d_Rq);
-  //CudaCheckError();
-}
-
-// Returns the transpose of (scale_coeff*A.T*B + prior_coeff*C); 
-// Python equivalent: C = (scale_coeff*np.dot(A.T, B) + prior_coeff*C).T
-cublasStatus_t PointCloudTransformer::MatMulT(float *d_A, float *d_B, float *d_C,
-                                              int rows_A, int cols_A,
-                                              int rows_B, int cols_B, float scale_coeff,
-                                              float prior_coeff) {
-  return cublasSgemm_v2(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_T,
-                        cols_A, cols_B, rows_A, &scale_coeff,
-                        d_A, cols_A, d_B, cols_B, &prior_coeff, d_C,
-                        cols_A);
+  CublasSafeCall(cublasSgemm_v2(cublas_handle, CUBLAS_OP_T, CUBLAS_OP_N,
+                                3, buffer_size, 3, &a, d_Rq, 3,
+                                d_positions_buffer_ptr, 3, &b,
+                                d_positions_buffer_ptr, 3));
 }
 
 std::vector<float> PointCloudTransformer::split(const std::string &s,
@@ -105,6 +92,12 @@ std::vector<float> PointCloudTransformer::split(const std::string &s,
   std::vector<float> elems;
   split_(s, delim, elems);
   return elems;
+}
+
+void PointCloudTransformer::LoadResults() {
+  CudaSafeCall(cudaMemcpy(h_positions_buffer_ptr, d_positions_buffer_ptr,
+                          sizeof(float) * POSITION_DIM * buffer_size,
+                          cudaMemcpyDeviceToHost));
 }
 
 bool PointCloudTransformer::ReadNextRow() {

@@ -38,7 +38,7 @@ void LLA2NEmU_GPU(float *h_lla_data, float *d_nemu_data, float eq_radius,
                  float ecc, int num_samples, int sample_size,
                  cam_details &ref_cam);
 
-void NEmU2Cam_GPU(float *d_nemu_data, float *h_Rq); // In-place
+void NEmU2Cam_GPU(float *d_nemu_data, float *d_Rq); // In-place
 
 class PointCloudTransformer {
 public:
@@ -52,6 +52,7 @@ public:
   float *h_Rq, *d_Rq;
   
   cudaDeviceProp cudaProp;
+  cublasHandle_t cublas_handle;
 
   int global_row_idx;
   int local_row_idx;
@@ -74,7 +75,10 @@ public:
                          float cam_Qy, float cam_Qz);
   void ConvertLLA2ENU_GPU();
   void ConvertENU2CamCoord_GPU();
-
+  cublasStatus_t MatMulT(float *d_A, float *d_B, float *d_C,
+                         int rows_A, int cols_A,
+                         int rows_B, int cols_B, float scale_coeff,
+                         float prior_coeff);
   std::vector<float> static split(const std::string &s,
                                   char delim);
 

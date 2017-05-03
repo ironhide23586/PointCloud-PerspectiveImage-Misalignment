@@ -87,7 +87,8 @@ int main() {
   //pcl->PopulateReadBuffer();
   //print_h_var(pcl->h_positions_buffer_ptr, pcl->buffer_size, 3);
   pcl->ConvertLLA2ENU_GPU();
-  print_h_var(pcl->h_positions_buffer_ptr, pcl->buffer_size, 3);
+  print_d_var(pcl->d_positions_buffer_ptr, pcl->buffer_size, 3);
   pcl->ConvertENU2CamCoord_GPU();
+  print_d_var(pcl->d_positions_buffer_ptr, pcl->buffer_size, 3);
   return 0;
 }

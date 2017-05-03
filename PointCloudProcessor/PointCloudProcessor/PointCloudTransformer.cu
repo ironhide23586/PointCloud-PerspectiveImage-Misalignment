@@ -48,32 +48,15 @@ __global__ void LLA2NEmU_GPUKernel(float *h_lla_data, float *d_out_coord_data,
 
 }
 
-//void LLA2ECEF_CPU(float phi, float lambda, float h, float eq_radius,
-//                  float ecc, float *x, float *y, float *z) {
-//  float sin_phi = sinf(phi);
-//  float cos_phi = cosf(phi);
-//  float sin_lambda = sinf(lambda);
-//  float cos_lambda = cosf(lambda);
-//
-//  float N_phi = eq_radius / sqrtf(1 - powf(ecc * sin_phi, 2.0f));
-//  float xy_p0 = (h + N_phi) * cos_lambda;
-//
-//  *x = xy_p0 * cos_phi;
-//  *y = xy_p0 * sin_phi;
-//  *z = (h + (1 - ecc * ecc) * N_phi) * sin_lambda;
-//}
-
 void LLA2NEmU_GPU(float *h_lla_data, float *d_nemu_data, float eq_radius,
                  float ecc, int num_samples, int sample_size,
                  cam_details &ref_cam) {
-  //LLA2ECEF_CPU(ref_cam.phi, ref_cam.lambda, ref_cam.h, eq_radius, ecc,
-  //             &ref_cam.x, &ref_cam.y, &ref_cam.z);
   LLA2NEmU_GPUKernel << < num_samples, sample_size >> > (h_lla_data, d_nemu_data,
                                                         eq_radius, ecc,
                                                         ref_cam.x, ref_cam.y,
                                                         ref_cam.z);
 }
 
-void NEmU2Cam_GPU(float *d_nemu_data, float *h_Rq) {
+void NEmU2Cam_GPU(float *d_nemu_data, float *d_Rq) {
   
 }

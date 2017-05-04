@@ -2,17 +2,25 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
-f = open('cam_coords.fuse', 'rb')
+f = open('cam_coords_camcoord.fuse', 'rb')
 points = f.readlines()
 f.close()
 
-pnts = np.array([np.array(points[i].strip().split(' ')[:-1]).astype(np.float) for i in xrange(len(points)) if i % 512 == 0])
+pnts = np.array([np.array(points[i].strip().split(' ')[:-1]).astype(np.float) for i in xrange(len(points)) if i % 64 == 0])
+intensities = np.array([np.array(points[i].strip().split(' ')[-1]).astype(np.float) for i in xrange(len(points)) if i % 64 == 0])
+intensities /= intensities.max()
+intensities.astype(np.uint)
 
+y = np.zeros([intensities.shape[0], 3])
+y[:, 0] = intensities
+y[:, 1] = intensities
+y[:, 2] = intensities
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
-ax.scatter(pnts[:, 0], pnts[:, 1], pnts[:, 2])
+ax.scatter(pnts[:, 0], pnts[:, 1], pnts[:, 2], c=y)
+ax.scatter(0, 0, 0, c=(.1, .5, .2))
 #plots = []
 #color = np.zeros(3)
 #cidx = 0

@@ -38,7 +38,7 @@ __global__ void LLA2NEmU_GPUKernel(float *h_lla_data, float *d_out_coord_data,
       d_out_coord_data[lambda_idx] = (xy_p0 * sin_phi) - y0;
     else
       d_out_coord_data[h_idx] = ((h + (1 - ecc * ecc) * N_phi) * sin_lambda)
-      - z0;
+                                - z0;
     __syncthreads();
 
     float x = d_out_coord_data[phi_idx];
@@ -58,6 +58,18 @@ __global__ void LLA2NEmU_GPUKernel(float *h_lla_data, float *d_out_coord_data,
                                   + (y * cos_phi
                                      * sin_lambda)
                                   + (z * sin_phi));
+
+    //if (threadIdx.x == 0)
+    //  d_out_coord_data[phi_idx] = (x * (-sin_lambda)) + (y * cos_lambda);
+    //else if (threadIdx.x == 1)
+    //  d_out_coord_data[lambda_idx] = (x * (-cos_lambda) * sin_phi) + (y * (-sin_phi)
+    //                                                               * sin_lambda) + (z * cos_phi);
+    //else
+    //  d_out_coord_data[h_idx] = ((x * cos_phi
+    //                               * cos_lambda)
+    //                              + (y * cos_phi
+    //                                 * sin_lambda)
+    //                              + (z * sin_phi));
   }
 }
 
@@ -79,16 +91,29 @@ __global__ void CamCoord2Img_GPUKernel(float *d_cam_xyz_data,
 
     int projected_x, projected_y;
 
-    if (z > 0 && z > abs(x) && z > abs(y)) { //FRONT
+    if (z < 0 && z < -abs(x) && z < -abs(y)) { //REAR
+      projected_x = (int)(((float)(-y / z) * (resolution - 1) / 2)
+                          + ((float)(resolution + 1) / 2)) - 1;
+      projected_y = (int)(((float)(-x / z) * (resolution - 1) / 2)
+                          + ((float)(resolution + 1) / 2)) - 1;
+
+      int projected_idx = projected_y * resolution + projected_x;
+      //d_front_img[1] = projected_idx;
+      d_rear_img[projected_idx] = 255;
+      //atomicAdd(&d_front_img[projected_idx], h_intensities[point_idx]);
+    }
+    else if (z > 0 && z > abs(x) && z > abs(y)) { //FRONT
       projected_x = (int)(((float)(y / z) * (resolution - 1) / 2)
                           + ((float)(resolution + 1) / 2)) - 1;
       projected_y = (int)(((float)(x / z) * (resolution - 1) / 2)
                           + ((float)(resolution + 1) / 2)) - 1;
+
       int projected_idx = projected_y * resolution + projected_x;
       //d_front_img[1] = projected_idx;
       d_front_img[projected_idx] = 255;
       //atomicAdd(&d_front_img[projected_idx], h_intensities[point_idx]);
     }
+
   }
 }
 

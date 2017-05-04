@@ -117,12 +117,88 @@ void PointCloudTransformer::ConvertLLA2NEmU_GPU() {
   CudaCheckError();
 }
 
-void PointCloudTransformer::ConvertENU2CamCoord_GPU() {
+void PointCloudTransformer::ConvertNEmU2CamCoord_GPU() {
   float a = 1.0f, b = 0.0f;
   CublasSafeCall(cublasSgemm_v2(cublas_handle, CUBLAS_OP_T, CUBLAS_OP_N,
                                 3, buffer_size, 3, &a, d_Rq, 3,
                                 d_positions_buffer_ptr, 3, &b,
                                 d_positions_buffer_ptr, 3));
+}
+
+void PointCloudTransformer::ConvertCamCoord2Img_CPU(int resolution) {
+  if (img_allocated) {
+    free(h_front);
+    free(h_rear);
+    free(h_left);
+    free(h_right);
+  }
+  int img_size = sizeof(float) * resolution * resolution;
+  h_front = (float *)malloc(img_size);
+  h_rear = (float *)malloc(img_size);
+  h_left = (float *)malloc(img_size);
+  h_right = (float *)malloc(img_size);
+  img_allocated = true;
+
+  memset(h_front, 0, img_size);
+  memset(h_rear, 0, img_size);
+  memset(h_left, 0, img_size);
+  memset(h_right, 0, img_size);
+
+  LoadResults();
+
+  for (int point_idx = 0; point_idx < buffer_size; point_idx++) {
+    int cam_x_idx = point_idx * 3;
+    float x = h_positions_buffer_ptr[cam_x_idx];
+    float y = h_positions_buffer_ptr[cam_x_idx + 1];
+    float z = h_positions_buffer_ptr[cam_x_idx + 2];
+
+    int projected_x, projected_y;
+
+    if (z < 0 && z < -abs(x) && z < -abs(y)) { //LEFT
+      projected_x = (int)(((float)(-y / z) * (resolution - 1) / 2)
+                          + ((float)(resolution + 1) / 2)) - 1;
+      projected_y = (int)(((float)(-x / z) * (resolution - 1) / 2)
+                          + ((float)(resolution + 1) / 2)) - 1;
+
+      int projected_idx = projected_y * resolution + projected_x;
+      h_left[projected_idx] += h_intensities_buffer_ptr[point_idx];
+    }
+    else if (z > 0 && z > abs(x) && z > abs(y)) { //RIGHT
+      projected_x = (int)(((float)(y / z) * (resolution - 1) / 2)
+                          + ((float)(resolution + 1) / 2)) - 1;
+      projected_y = (int)(((float)(x / z) * (resolution - 1) / 2)
+                          + ((float)(resolution + 1) / 2)) - 1;
+
+      int projected_idx = projected_y * resolution + projected_x;
+      h_right[projected_idx] += h_intensities_buffer_ptr[point_idx];
+    }
+  }
+
+  
+
+  cv::Mat img_scaled_left = cv::Mat(resolution, resolution, CV_8UC1);
+  cv::Mat img_scaled_right = cv::Mat(resolution, resolution, CV_8UC1);
+
+  for (int i = 0; i < resolution; i++) {
+    for (int j = 0; j < resolution; j++) {
+      img_scaled_left.at<uchar>(i, j) = h_left[i * resolution + j];
+      img_scaled_right.at<uchar>(i, j) = h_right[i * resolution + j];
+    }
+  }
+  cv::imwrite("img_left_unnormalized.jpg", img_scaled_left);
+  cv::imwrite("img_right_unnormalized.jpg", img_scaled_right);
+
+  NormalizeMatrix_CPU(h_left, resolution * resolution);
+  NormalizeMatrix_CPU(h_right, resolution * resolution);
+  
+  for (int i = 0; i < resolution; i++) {
+    for (int j = 0; j < resolution; j++) {
+      img_scaled_left.at<uchar>(i, j) = h_left[i * resolution + j];
+      img_scaled_right.at<uchar>(i, j) = h_right[i * resolution + j];
+    }
+  }
+  cv::imwrite("img_left_normalized.jpg", img_scaled_left);
+  cv::imwrite("img_right_normalized.jpg", img_scaled_right);
 }
 
 void PointCloudTransformer::ConvertCamCoord2Img_GPU(int resolution) {
@@ -160,6 +236,7 @@ void PointCloudTransformer::ConvertCamCoord2Img_GPU(int resolution) {
                    d_front, d_rear, d_left, d_right, resolution,
                    buffer_size);
   CudaSafeCall(cudaMemcpy(h_front, d_front, img_size, cudaMemcpyDeviceToHost));
+  CudaSafeCall(cudaMemcpy(h_rear, d_rear, img_size, cudaMemcpyDeviceToHost));
   //NormalizeMatrix_CPU(h_front, resolution * resolution);
   
   cv::Mat img_scaled = cv::Mat(resolution, resolution, CV_8UC1);
@@ -169,8 +246,8 @@ void PointCloudTransformer::ConvertCamCoord2Img_GPU(int resolution) {
       img_scaled.at<uchar>(i, j) = h_front[i * resolution + j];
     }
   }
-  cv::imwrite("img.jpg", img_scaled);
-  //show_img(img_scaled);
+  cv::imwrite("img1.jpg", img_scaled);
+  show_img(img_scaled);
   CudaCheckError();
 }
 

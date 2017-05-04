@@ -86,8 +86,10 @@ public:
   void LoadCameraDetails(float cam_phi, float cam_lambda, float cam_h,
                          float cam_Qs, float cam_Qx,
                          float cam_Qy, float cam_Qz);
+  
   void ConvertLLA2NEmU_GPU();
-  void ConvertENU2CamCoord_GPU();
+  void ConvertNEmU2CamCoord_GPU();
+  void ConvertCamCoord2Img_CPU(int resolution);
   void ConvertCamCoord2Img_GPU(int resolution);
   
   void NormalizeMatrix_CPU(float *h_mat, int total_size, int scale=255);

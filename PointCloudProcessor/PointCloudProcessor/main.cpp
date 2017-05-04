@@ -6,6 +6,8 @@ using namespace std;
 
 #define NUM_POINTS 430736
 
+#define NUM_POINTS2 1046233
+
 void print_h_var(float *h_v, int r, int c, bool print_elem = true) {
   std::cout << "-------------------------" << std::endl;
   float mini = h_v[0], maxi = h_v[0];
@@ -73,8 +75,8 @@ int main() {
                                                          NUM_POINTS);
 
   //PointCloudTransformer *pcl = new PointCloudTransformer("pointcloud1.fuse",
-  //                                                       NUM_POINTS);
-  
+  //                                                       20);
+  //
   //pcl->reference_cam.phi = 45.90414414f;
   //pcl->reference_cam.lambda = 11.02845385f;
   //pcl->reference_cam.h = 227.5819f;
@@ -89,13 +91,15 @@ int main() {
   pcl->PopulateReadBuffer();
 
   pcl->ConvertLLA2NEmU_GPU();
-  pcl->ConvertENU2CamCoord_GPU();
-  pcl->ConvertCamCoord2Img_GPU(2048);
+  pcl->ConvertNEmU2CamCoord_GPU();
+  pcl->ConvertCamCoord2Img_CPU(1024);
+
+  //print_d_var(pcl->d_positions_buffer_ptr, 20, 3);
 
   //pcl->LoadResults();
   ////print_d_var(pcl->d_positions_buffer_ptr, pcl->buffer_size, 3);
   //ofstream results_file;
-  //results_file.open("Cam_coords.fuse", std::ofstream::out | std::ofstream::app);
+  //results_file.open("cam_coords.fuse", std::ofstream::out | std::ofstream::app);
   //for (int i = 0; i < NUM_POINTS; i++) {
   //  results_file << pcl->h_positions_buffer_ptr[i * 3] << " "
   //    << pcl->h_positions_buffer_ptr[i * 3 + 1] << " "

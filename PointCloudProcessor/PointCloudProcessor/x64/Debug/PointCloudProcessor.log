@@ -1,4 +1,4 @@
-﻿Build started 5/3/2017 1:48:46 PM.
+﻿Build started 5/4/2017 3:36:09 AM.
      1>Project "D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\PointCloudProcessor\PointCloudProcessor.vcxproj" on node 2 (Build target(s)).
      1>InitializeBuildStatus:
          Creating "x64\Debug\PointClo.61039DB1.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -13,8 +13,10 @@
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include" /ZI /nologo /W3 /WX- /Od /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt main.cpp
          main.cpp
+     1>c:\program files (x86)\microsoft visual studio 14.0\vc\include\opencv2\flann\logger.h(66): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\x64\Debug\PointCloudProcessor.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\lib\x64" /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\lib\x64" cudart.lib cublas.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\x64\Debug\PointCloudProcessor.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\x64\Debug\PointCloudProcessor.lib" /MACHINE:X64 x64\Debug\PointCloudTransformer.cu.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\x64\Debug\PointCloudProcessor.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\lib\x64" /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\lib\x64" cudart.lib cublas.lib opencv_world320.lib opencv_world320d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\x64\Debug\PointCloudProcessor.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\x64\Debug\PointCloudProcessor.lib" /MACHINE:X64 x64\Debug\PointCloudTransformer.cu.obj
          x64\Debug\main.obj
          x64\Debug\PointCloudTransformer.obj
          PointCloudProcessor.vcxproj -> D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\x64\Debug\PointCloudProcessor.exe
@@ -26,4 +28,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.29
+Time Elapsed 00:00:02.50

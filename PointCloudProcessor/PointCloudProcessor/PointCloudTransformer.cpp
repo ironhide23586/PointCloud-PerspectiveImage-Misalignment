@@ -1,5 +1,45 @@
 #include "PointCloudTransformer.h"
 
+void show_img(cv::Mat &img) {
+  //cv::Mat img_scaled = cv::Mat(600, 600, CV_8UC1);
+  //cv::resize(img, img_scaled, img_scaled.size());
+  cv::namedWindow("image");
+  cv::imshow("image", img);
+  cv::waitKey();
+}
+
+void print_d_var2(float *d_v, int r, int c, bool print_elem = true) {
+  std::cout << "*****************************" << std::endl;
+  float *h_v = (float *)malloc(sizeof(float) * r * c);
+  cudaMemcpy(h_v, d_v, sizeof(float) * r * c, cudaMemcpyDeviceToHost);
+  float mini = h_v[0], maxi = h_v[0];
+  int mini_idx = 0, maxi_idx = 0;
+  float sum = 0.0;
+  for (int i = 0; i < r; i++) {
+    for (int j = 0; j < c; j++) {
+      if (print_elem)
+        printf("%f\t", h_v[j + i * c]);
+      if (h_v[j + i * c] < mini) {
+        mini = h_v[j + i * c];
+        mini_idx = j + i * c;
+      }
+      if (h_v[j + i * c] > maxi) {
+        maxi = h_v[j + i * c];
+        maxi_idx = j + i * c;
+      }
+      sum += h_v[j + i * c];
+    }
+    if (print_elem)
+      std::cout << std::endl;
+  }
+  std::cout << "Shape = (" << r << ", " << c << ")" << std::endl;
+  std::cout << "Minimum at index " << mini_idx << " = " << mini << std::endl;
+  std::cout << "Maximum at index " << maxi_idx << " = " << maxi << std::endl;
+  std::cout << "Average of all elements = " << sum / (r * c) << std::endl;
+  // std::cout << std::endl;
+  free(h_v);
+}
+
 PointCloudTransformer::PointCloudTransformer(const char *filename_arg,
                                              int buff_size) {
   filename = filename_arg;
@@ -9,6 +49,7 @@ PointCloudTransformer::PointCloudTransformer(const char *filename_arg,
   read_rows = 0;
   buffer_size = buff_size;
   end_reached = false;
+  img_allocated = false;
   ellipsoidal_flattening = (EQUATORIAL_RADIUS - POLAR_RADIUS)
     / EQUATORIAL_RADIUS;
   eccentricity = std::sqrtf(ellipsoidal_flattening
@@ -18,7 +59,7 @@ PointCloudTransformer::PointCloudTransformer(const char *filename_arg,
                               sizeof(float) * POSITION_DIM * buff_size));
   CudaSafeCall(cudaMalloc((void **)&d_positions_buffer_ptr,
                           sizeof(float) * POSITION_DIM * buff_size));
-  CudaSafeCall(cudaMallocHost((void **)&intensities_buffer_ptr,
+  CudaSafeCall(cudaMallocHost((void **)&h_intensities_buffer_ptr,
                               sizeof(float) * buff_size));
   CublasSafeCall(cublasCreate_v2(&cublas_handle));
 }
@@ -69,14 +110,11 @@ void PointCloudTransformer::LoadCameraDetails(float cam_phi, float cam_lambda, f
   CudaSafeCall(cudaMemcpy(d_Rq, h_Rq, sizeof(float) * 3 * 3, cudaMemcpyHostToDevice));
 }
 
-void PointCloudTransformer::ConvertLLA2ENU_GPU() {
+void PointCloudTransformer::ConvertLLA2NEmU_GPU() {
   LLA2NEmU_GPU(h_positions_buffer_ptr, d_positions_buffer_ptr, 
                EQUATORIAL_RADIUS, eccentricity, buffer_size, 
                POSITION_DIM, reference_cam);
   CudaCheckError();
-  //CudaSafeCall(cudaMemcpy(h_positions_buffer_ptr, d_positions_buffer_ptr,
-  //                        sizeof(float) * POSITION_DIM * buffer_size,
-  //                        cudaMemcpyDeviceToHost));
 }
 
 void PointCloudTransformer::ConvertENU2CamCoord_GPU() {
@@ -87,17 +125,80 @@ void PointCloudTransformer::ConvertENU2CamCoord_GPU() {
                                 d_positions_buffer_ptr, 3));
 }
 
-std::vector<float> PointCloudTransformer::split(const std::string &s,
-                                                char delim) {
-  std::vector<float> elems;
-  split_(s, delim, elems);
-  return elems;
+void PointCloudTransformer::ConvertCamCoord2Img_GPU(int resolution) {
+  if (img_allocated) {
+    CudaSafeCall(cudaFree(d_front));
+    CudaSafeCall(cudaFree(d_rear));
+    CudaSafeCall(cudaFree(d_left));
+    CudaSafeCall(cudaFree(d_right));
+    free(h_front);
+    free(h_rear);
+    free(h_left);
+    free(h_right);
+  }
+  int img_size = sizeof(float) * resolution * resolution;
+  CudaSafeCall(cudaMalloc((void **)&d_front, img_size));
+  CudaSafeCall(cudaMalloc((void **)&d_rear, img_size));
+  CudaSafeCall(cudaMalloc((void **)&d_left, img_size));
+  CudaSafeCall(cudaMalloc((void **)&d_right, img_size));
+  h_front = (float *)malloc(img_size);
+  h_rear = (float *)malloc(img_size);
+  h_left = (float *)malloc(img_size);
+  h_right = (float *)malloc(img_size);
+  img_allocated = true;
+
+  FloatGPUMemset(d_front, resolution * resolution, 0.0F);
+  CudaCheckError();
+  FloatGPUMemset(d_rear, resolution * resolution, 0.0F);
+  CudaCheckError();
+  FloatGPUMemset(d_left, resolution * resolution, 0.0F);
+  CudaCheckError();
+  FloatGPUMemset(d_right, resolution * resolution, 0.0F);
+  CudaCheckError();
+
+  CamCoord2Img_GPU(d_positions_buffer_ptr, h_intensities_buffer_ptr,
+                   d_front, d_rear, d_left, d_right, resolution,
+                   buffer_size);
+  CudaSafeCall(cudaMemcpy(h_front, d_front, img_size, cudaMemcpyDeviceToHost));
+  //NormalizeMatrix_CPU(h_front, resolution * resolution);
+  
+  cv::Mat img_scaled = cv::Mat(resolution, resolution, CV_8UC1);
+
+  for (int i = 0; i < resolution; i++) {
+    for (int j = 0; j < resolution; j++) {
+      img_scaled.at<uchar>(i, j) = h_front[i * resolution + j];
+    }
+  }
+  cv::imwrite("img.jpg", img_scaled);
+  //show_img(img_scaled);
+  CudaCheckError();
+}
+
+void PointCloudTransformer::NormalizeMatrix_CPU(float *h_mat,
+                                                int total_size,
+                                                int scale) {
+  float max_val = 0;
+  for (int i = 0; i < total_size; i++) {
+    if (h_mat[i] > max_val)
+      max_val = h_mat[i];
+  }
+  for (int i = 0; i < total_size; i++) {
+    float coeff = (float) (scale / max_val);
+    h_mat[i] *= coeff;
+  }
 }
 
 void PointCloudTransformer::LoadResults() {
   CudaSafeCall(cudaMemcpy(h_positions_buffer_ptr, d_positions_buffer_ptr,
                           sizeof(float) * POSITION_DIM * buffer_size,
                           cudaMemcpyDeviceToHost));
+}
+
+std::vector<float> PointCloudTransformer::split(const std::string &s,
+                                                char delim) {
+  std::vector<float> elems;
+  split_(s, delim, elems);
+  return elems;
 }
 
 bool PointCloudTransformer::ReadNextRow() {
@@ -115,7 +216,7 @@ bool PointCloudTransformer::ReadNextRow() {
           //std::cout << h_positions_buffer_ptr[local_row_idx * POSITION_DIM + i] << ", ";
         }
         else {
-          intensities_buffer_ptr[local_row_idx] = point_vect[i];
+          h_intensities_buffer_ptr[local_row_idx] = point_vect[i];
           //std::cout << "---->" << intensities_buffer_ptr[local_row_idx];
         }
       }

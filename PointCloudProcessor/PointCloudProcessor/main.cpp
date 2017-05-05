@@ -71,11 +71,11 @@ void print_d_var(float *d_v, int r, int c, bool print_elem = true) {
 }
 
 int main() {
- /* PointCloudTransformer *pcl = new PointCloudTransformer("final_project_point_cloud.fuse",
+  PointCloudTransformer *pcl = new PointCloudTransformer("final_project_point_cloud.fuse",
                                                          NUM_POINTS);
-*/
-  PointCloudTransformer *pcl = new PointCloudTransformer("pointcloud1.fuse",
-                                                         NUM_POINTS2);
+
+  //PointCloudTransformer *pcl = new PointCloudTransformer("pointcloud1.fuse",
+  //                                                       NUM_POINTS2);
   //
   //pcl->reference_cam.phi = 45.90414414f;
   //pcl->reference_cam.lambda = 11.02845385f;
@@ -85,8 +85,10 @@ int main() {
   //pcl->reference_cam.Qy = 0.592222f;
   //pcl->reference_cam.Qz = 0.615007f;
 
-  pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 227.5819f,
-                         0.362114f, 0.374050f, 0.592222f, 0.615007f);
+  //pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 227.5819f,
+  //                       0.362114f, 0.374050f, 0.592222f, 0.615007f);
+  pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 240.5819f,
+                         -0.18f, 0.374050f, 0.592222f, 0.615007f);
   print_d_var(pcl->d_Rq, 3, 3);
   pcl->PopulateReadBuffer();
 
@@ -94,8 +96,8 @@ int main() {
   pcl->ConvertNEmU2CamCoord_GPU();
   //pcl->ConvertCamCoord2Img_CPU(4096);
 
-  int res = 64;
-  for (int i = 0; i < 8; i++) {
+  int res = 2048;
+  for (int i = 0; i < 1; i++) {
     pcl->ConvertCamCoord2Img_CPU(res);
     res *= 2;
   }

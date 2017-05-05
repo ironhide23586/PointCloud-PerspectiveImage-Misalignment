@@ -172,35 +172,72 @@ void PointCloudTransformer::ConvertCamCoord2Img_CPU(int resolution) {
       int projected_idx = projected_y * resolution + projected_x;
       h_right[projected_idx] += h_intensities_buffer_ptr[point_idx];
     }
-  }
+    else if (x > 0 && x > abs(z) && x > abs(y)) { //FRONT
+      projected_x = (int)(((float)(z / x) * (resolution - 1) / 2)
+                          + ((float)(resolution + 1) / 2)) - 1;
+      projected_y = (int)(((float)(y / x) * (resolution - 1) / 2)
+                          + ((float)(resolution + 1) / 2)) - 1;
 
-  
+      int projected_idx = projected_y * resolution + projected_x;
+      h_front[projected_idx] += h_intensities_buffer_ptr[point_idx];
+    }
+    else if (x < 0 && x < -abs(z) && x < -abs(y)) { //REAR
+      projected_x = (int)(((float)(-z / x) * (resolution - 1) / 2)
+                          + ((float)(resolution + 1) / 2)) - 1;
+      projected_y = (int)(((float)(-y / x) * (resolution - 1) / 2)
+                          + ((float)(resolution + 1) / 2)) - 1;
+
+      int projected_idx = projected_y * resolution + projected_x;
+      h_rear[projected_idx] += h_intensities_buffer_ptr[point_idx];
+    }
+  }
 
   cv::Mat img_scaled_left = cv::Mat(resolution, resolution, CV_8UC1);
   cv::Mat img_scaled_right = cv::Mat(resolution, resolution, CV_8UC1);
+  cv::Mat img_scaled_front = cv::Mat(resolution, resolution, CV_8UC1);
+  cv::Mat img_scaled_rear = cv::Mat(resolution, resolution, CV_8UC1);
 
   for (int i = 0; i < resolution; i++) {
     for (int j = 0; j < resolution; j++) {
       img_scaled_left.at<uchar>(i, j) = h_left[i * resolution + j];
       img_scaled_right.at<uchar>(i, j) = h_right[i * resolution + j];
+      img_scaled_front.at<uchar>(i, j) = h_front[i * resolution + j];
+      img_scaled_rear.at<uchar>(i, j) = h_rear[i * resolution + j];
     }
   }
-  cv::imwrite("img_left_unnormalized.jpg", img_scaled_left);
-  cv::imwrite("img_right_unnormalized.jpg", img_scaled_right);
+  cv::imwrite("img_left_unnormalized_" + std::to_string(resolution) 
+              + ".jpg", img_scaled_left);
+  cv::imwrite("img_right_unnormalized_" + std::to_string(resolution)
+              + ".jpg", img_scaled_right);
+  cv::imwrite("img_front_unnormalized_" + std::to_string(resolution)
+              + ".jpg", img_scaled_front);
+  cv::imwrite("img_rear_unnormalized_" + std::to_string(resolution)
+              + ".jpg", img_scaled_rear);
 
   NormalizeMatrix_CPU(h_left, resolution * resolution);
   NormalizeMatrix_CPU(h_right, resolution * resolution);
+  NormalizeMatrix_CPU(h_front, resolution * resolution);
+  NormalizeMatrix_CPU(h_rear, resolution * resolution);
   
   for (int i = 0; i < resolution; i++) {
     for (int j = 0; j < resolution; j++) {
       img_scaled_left.at<uchar>(i, j) = h_left[i * resolution + j];
       img_scaled_right.at<uchar>(i, j) = h_right[i * resolution + j];
+      img_scaled_front.at<uchar>(i, j) = h_front[i * resolution + j];
+      img_scaled_rear.at<uchar>(i, j) = h_rear[i * resolution + j];
     }
   }
-  cv::imwrite("img_left_normalized.jpg", img_scaled_left);
-  cv::imwrite("img_right_normalized.jpg", img_scaled_right);
+  cv::imwrite("img_left_normalized_" + std::to_string(resolution)
+              + ".jpg", img_scaled_left);
+  cv::imwrite("img_right_normalized_" + std::to_string(resolution)
+              + ".jpg", img_scaled_right);
+  cv::imwrite("img_front_normalized_" + std::to_string(resolution)
+              + ".jpg", img_scaled_front);
+  cv::imwrite("img_rear_normalized_" + std::to_string(resolution)
+              + ".jpg", img_scaled_rear);
 }
 
+//FAULTY!!!!
 void PointCloudTransformer::ConvertCamCoord2Img_GPU(int resolution) {
   if (img_allocated) {
     CudaSafeCall(cudaFree(d_front));
@@ -246,7 +283,7 @@ void PointCloudTransformer::ConvertCamCoord2Img_GPU(int resolution) {
       img_scaled.at<uchar>(i, j) = h_front[i * resolution + j];
     }
   }
-  cv::imwrite("img1.jpg", img_scaled);
+  cv::imwrite("img.jpg", img_scaled);
   show_img(img_scaled);
   CudaCheckError();
 }

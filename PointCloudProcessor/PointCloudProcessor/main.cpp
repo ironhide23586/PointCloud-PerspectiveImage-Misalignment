@@ -71,11 +71,11 @@ void print_d_var(float *d_v, int r, int c, bool print_elem = true) {
 }
 
 int main() {
-  PointCloudTransformer *pcl = new PointCloudTransformer("final_project_point_cloud.fuse",
+ /* PointCloudTransformer *pcl = new PointCloudTransformer("final_project_point_cloud.fuse",
                                                          NUM_POINTS);
-
-  //PointCloudTransformer *pcl = new PointCloudTransformer("pointcloud1.fuse",
-  //                                                       20);
+*/
+  PointCloudTransformer *pcl = new PointCloudTransformer("pointcloud1.fuse",
+                                                         NUM_POINTS2);
   //
   //pcl->reference_cam.phi = 45.90414414f;
   //pcl->reference_cam.lambda = 11.02845385f;
@@ -92,7 +92,13 @@ int main() {
 
   pcl->ConvertLLA2NEmU_GPU();
   pcl->ConvertNEmU2CamCoord_GPU();
-  pcl->ConvertCamCoord2Img_CPU(1024);
+  //pcl->ConvertCamCoord2Img_CPU(4096);
+
+  int res = 64;
+  for (int i = 0; i < 8; i++) {
+    pcl->ConvertCamCoord2Img_CPU(res);
+    res *= 2;
+  }
 
   //print_d_var(pcl->d_positions_buffer_ptr, 20, 3);
 

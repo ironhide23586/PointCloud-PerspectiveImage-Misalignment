@@ -1,4 +1,4 @@
-﻿Build started 5/5/2017 2:23:58 PM.
+﻿Build started 5/5/2017 3:14:00 PM.
      1>Project "D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\PointCloudProcessor\PointCloudProcessor.vcxproj" on node 2 (Build target(s)).
      1>InitializeBuildStatus:
          Creating "x64\Release\PointClo.61039DB1.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -15,12 +15,13 @@
          main.cpp
      1>c:\program files (x86)\microsoft visual studio 14.0\vc\include\opencv2\flann\logger.h(66): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
          C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
+     1>main.cpp(93): warning C4305: 'argument': truncation from 'double' to 'float'
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\x64\Release\PointCloudProcessor.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\lib\x64" /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\lib\x64" cudart.lib cublas.lib opencv_world320.lib opencv_world320d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\x64\Release\PointCloudProcessor.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Users\monst\Desktop\PointCloud-PerspectiveImage-Misalignment\PointCloudProcessor\x64\Release\PointCloudProcessor.lib" /MACHINE:X64 x64\Release\PointCloudTransformer.cu.obj
          x64\Release\main.obj
          x64\Release\PointCloudTransformer.obj
          Generating code
-         8 of 505 functions ( 1.6%) were compiled, the rest were copied from previous compilation.
+         9 of 561 functions ( 1.6%) were compiled, the rest were copied from previous compilation.
            0 functions were new in current compilation
            0 functions had inline decision re-evaluated but remain unchanged
          Finished generating code
@@ -33,4 +34,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.65
+Time Elapsed 00:00:03.09

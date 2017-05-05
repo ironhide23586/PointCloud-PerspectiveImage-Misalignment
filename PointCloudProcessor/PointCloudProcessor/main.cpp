@@ -87,8 +87,10 @@ int main() {
 
   //pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 227.5819f,
   //                       0.362114f, 0.374050f, 0.592222f, 0.615007f);
+  //pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 240.5819f,
+  //                       -0.18f, 0.374050f, 0.592222f, 0.615007f);
   pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 240.5819f,
-                         -0.18f, 0.374050f, 0.592222f, 0.615007f);
+                         -1.0f, 0.86, -0.23, -0.1);
   print_d_var(pcl->d_Rq, 3, 3);
   pcl->PopulateReadBuffer();
 

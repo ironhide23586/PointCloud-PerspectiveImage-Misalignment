@@ -222,63 +222,63 @@ void PointCloudTransformer::ConvertCamCoord2Img_CPU(int resolution) {
               + ".jpg", img_scaled_front);
   cv::imwrite("img_rear_unnormalized_" + std::to_string(resolution)
               + ".jpg", img_scaled_rear);
-  Mat src = img_scaled_front;
-  Mat dst, cdst;
-  /* Set Region of Interest */
+  //Mat src = img_scaled_front;
+  //Mat dst, cdst;
+  ///* Set Region of Interest */
 
-  int offset_x = 0;
-  int offset_y = 0;
+  //int offset_x = 0;
+  //int offset_y = 0;
 
-  cv::Rect roi;
-  roi.x = offset_x;
-  roi.y = offset_y;
-  roi.width = src.size().width - (offset_x);
-  roi.height = src.size().height - (offset_y);
+  //cv::Rect roi;
+  //roi.x = offset_x;
+  //roi.y = offset_y;
+  //roi.width = src.size().width - (offset_x);
+  //roi.height = src.size().height - (offset_y);
 
-  /* Crop the original image to the defined ROI */
+  ///* Crop the original image to the defined ROI */
 
-  cv::Mat crop = src(roi);
-  Canny(crop, dst, 60, 200, 3);
-  cvtColor(dst, cdst, CV_GRAY2BGR);
+  //cv::Mat crop = src(roi);
+  //Canny(crop, dst, 60, 200, 3);
+  //cvtColor(dst, cdst, CV_GRAY2BGR);
 
-  Mat kernel = Mat::zeros(5, 5, CV_8U); // 5x5 zero array
-  kernel.diag() = 1;                  // set 2nd row to '1'
+  //Mat kernel = Mat::zeros(5, 5, CV_8U); // 5x5 zero array
+  //kernel.diag() = 1;                  // set 2nd row to '1'
 
-  cv::dilate(cdst, cdst, kernel);
-  cv::erode(cdst, cdst, kernel);
-  cv::dilate(cdst, cdst, kernel);
-  cv::erode(cdst, cdst, kernel);
+  //cv::dilate(cdst, cdst, kernel);
+  //cv::erode(cdst, cdst, kernel);
+  //cv::dilate(cdst, cdst, kernel);
+  //cv::erode(cdst, cdst, kernel);
 
 
-  vector<Vec4i> lines;
-  HoughLinesP(dst, lines, 1, CV_PI / 180, 130, 50, 20);
-  for (size_t i = 0; i < lines.size(); i++) {
-    Vec4i l = lines[i];
+  //vector<Vec4i> lines;
+  //HoughLinesP(dst, lines, 1, CV_PI / 180, 130, 50, 20);
+  //for (size_t i = 0; i < lines.size(); i++) {
+  //  Vec4i l = lines[i];
 
-    // oran = float(l[1] / col_size );
-    double angle = atan2(l[3] - l[1], l[2] - l[0]) * 180.0 / CV_PI;
-    if (angle < 0) angle += 180;
-    if (angle > 180 && angle < 360) angle -= 180;
-    angle = 180 - angle;
+  //  // oran = float(l[1] / col_size );
+  //  double angle = atan2(l[3] - l[1], l[2] - l[0]) * 180.0 / CV_PI;
+  //  if (angle < 0) angle += 180;
+  //  if (angle > 180 && angle < 360) angle -= 180;
+  //  angle = 180 - angle;
 
-    if (angle != 0 && angle != 90 && angle != 180)
-      if (angle <= 65 && angle >= 40) {
-        //if(1){
-        cout << angle << endl;
-        float slope = (l[3] - l[1]) / (l[2] - l[0]);
-        int c = l[3] - slope*l[2];
+  //  if (angle != 0 && angle != 90 && angle != 180)
+  //    if (angle <= 65 && angle >= 40) {
+  //      //if(1){
+  //      cout << angle << endl;
+  //      float slope = (l[3] - l[1]) / (l[2] - l[0]);
+  //      int c = l[3] - slope*l[2];
 
-        int x = -c / slope;
+  //      int x = -c / slope;
 
-        cv::Point(x, 0);
-        line(cdst, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, CV_AA);
-      }
-  }
+  //      cv::Point(x, 0);
+  //      line(cdst, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, CV_AA);
+  //    }
+  //}
 
-  //imshow("source", src);
-  //show_img(cdst);
-  cv::imwrite("img_front_unnormalized_" + std::to_string(resolution)
-              + "_edge_detect.jpg", cdst);
+  ////imshow("source", src);
+  ////show_img(cdst);
+  //cv::imwrite("img_front_unnormalized_" + std::to_string(resolution)
+  //            + "_edge_detect.jpg", cdst);
 
   //NormalizeMatrix_CPU(h_left, resolution * resolution);
   //NormalizeMatrix_CPU(h_right, resolution * resolution);

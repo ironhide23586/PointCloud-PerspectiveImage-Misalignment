@@ -74,49 +74,34 @@ int main() {
   PointCloudTransformer *pcl = new PointCloudTransformer("final_project_point_cloud.fuse",
                                                          NUM_POINTS);
 
-  //PointCloudTransformer *pcl = new PointCloudTransformer("pointcloud1.fuse",
-  //                                                       NUM_POINTS2);
-  //
-  //pcl->reference_cam.phi = 45.90414414f;
-  //pcl->reference_cam.lambda = 11.02845385f;
-  //pcl->reference_cam.h = 227.5819f;
-  //pcl->reference_cam.Qs = 0.362114f;
-  //pcl->reference_cam.Qx = 0.374050f;
-  //pcl->reference_cam.Qy = 0.592222f;
-  //pcl->reference_cam.Qz = 0.615007f;
-
-  //pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 227.5819f,
-  //                       0.362114f, 0.374050f, 0.592222f, 0.615007f);
+  pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 227.5819f,
+                         0.362114f, 0.374050f, 0.592222f, 0.615007f);
   //pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 240.5819f,
   //                       -0.18f, 0.374050f, 0.592222f, 0.615007f);
-  pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 240.5819f,
-                         -1.0f, 0.86, -0.23, -0.1);
+  //pcl->LoadCameraDetails(45.90414414f, 11.02845385f, 240.5819f,
+  //                       -1.0f, 0.86, -0.23, -0.1);
   print_d_var(pcl->d_Rq, 3, 3);
   pcl->PopulateReadBuffer();
 
   pcl->ConvertLLA2NEmU_GPU();
   pcl->ConvertNEmU2CamCoord_GPU();
-  //pcl->ConvertCamCoord2Img_CPU(4096);
 
-  int res = 2048;
-  for (int i = 0; i < 1; i++) {
-    pcl->ConvertCamCoord2Img_CPU(res);
+  int res = 256;
+  for (int i = 0; i < 4; i++) {
+    pcl->ConvertCamCoord2Img_CPU(res); // outputs image of desired resolution
     res *= 2;
   }
 
-  //print_d_var(pcl->d_positions_buffer_ptr, 20, 3);
-
-  //pcl->LoadResults();
-  ////print_d_var(pcl->d_positions_buffer_ptr, pcl->buffer_size, 3);
-  //ofstream results_file;
-  //results_file.open("cam_coords.fuse", std::ofstream::out | std::ofstream::app);
-  //for (int i = 0; i < NUM_POINTS; i++) {
-  //  results_file << pcl->h_positions_buffer_ptr[i * 3] << " "
-  //    << pcl->h_positions_buffer_ptr[i * 3 + 1] << " "
-  //    << pcl->h_positions_buffer_ptr[i * 3 + 2] << " "
-  //    << pcl->h_intensities_buffer_ptr[i] << std::endl;
-  //}
-  //results_file.close();
+  pcl->LoadResults();
+  ofstream results_file;
+  results_file.open("cam_coords.fuse", std::ofstream::out | std::ofstream::app);
+  for (int i = 0; i < NUM_POINTS; i++) {
+    results_file << pcl->h_positions_buffer_ptr[i * 3] << " "
+      << pcl->h_positions_buffer_ptr[i * 3 + 1] << " "
+      << pcl->h_positions_buffer_ptr[i * 3 + 2] << " "
+      << pcl->h_intensities_buffer_ptr[i] << std::endl;
+  }
+  results_file.close();
 
   return 0;
 }
